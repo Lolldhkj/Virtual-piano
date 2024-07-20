@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Piano</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #1d1d1d;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            color: white;
+            text-align: center;
+        }
+        #title {
+            margin-bottom: 20px;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        #piano {
+            display: flex;
+            position: relative;
+            background-color: #333;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            overflow-x: auto; /* Allow horizontal scrolling if needed */
+            white-space: nowrap; /* Prevent keys from wrapping */
+            width: 100%; /* Ensure it fits the screen width */
+            max-width: 100%; /* Ensure it doesn't exceed screen width */
+            box-sizing: border-box; /* Include padding in width calculation */
+        }
+        .key {
+            display: inline-block;
+            width: 60px;
+            height: 240px;
+            margin: 0;
+            border: 1px solid black;
+            text-align: center;
+            line-height: 240px; /* Center text vertically */
+            cursor: pointer;
+            user-select: none;
+            background: white;
+            z-index: 1;
+            border-radius: 0 0 5px 5px;
+            position: relative;
+        }
+        .note-label {
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+            text-align: center;
+            color: #333;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="title">Virtual Piano</div>
+    <div id="piano">
+        <div class="key" data-note="C4">
+            <div class="note-label">C4</div>
+        </div>
+        <div class="key" data-note="D4">
+            <div class="note-label">D4</div>
+        </div>
+        <div class="key" data-note="E4">
+            <div class="note-label">E4</div>
+        </div>
+        <div class="key" data-note="F4">
+            <div class="note-label">F4</div>
+        </div>
+        <div class="key" data-note="G4">
+            <div class="note-label">G4</div>
+        </div>
+        <div class="key" data-note="A4">
+            <div class="note-label">A4</div>
+        </div>
+        <div class="key" data-note="B4">
+            <div class="note-label">B4</div>
+        </div>
+        <div class="key" data-note="C5">
+            <div class="note-label">C5</div>
+        </div>
+    </div>
+
+    <script>
+        const notes = {
+            'C4': 261.63,
+            'D4': 293.66,
+            'E4': 329.63,
+            'F4': 349.23,
+            'G4': 392.00,
+            'A4': 440.00,
+            'B4': 493.88,
+            'C5': 523.25
+        };
+
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playNote(note) {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(notes[note], audioContext.currentTime);
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 1);
+
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + 1);
+        }
+
+        document.querySelectorAll('.key').forEach(key => {
+            key.addEventListener('click', () => {
+                playNote(key.dataset.note);
+            });
+        });
+    </script>
+</body>
+</html>
